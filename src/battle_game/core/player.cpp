@@ -12,6 +12,8 @@ void Player::Update() {
   if (!primary_unit) {
     if (!resurrection_count_down_) {
       resurrection_count_down_ = kTickPerSecond * 5;  // Respawn after 5 seconds
+      if (id_ == 3)
+        resurrection_count_down_ = kTickPerSecond * game_core_->RandomInt(20,60);
     }
     resurrection_count_down_--;
     if (!resurrection_count_down_) {

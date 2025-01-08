@@ -1,34 +1,33 @@
-#include "battle_game/core/bullets/cannon_ball.h"
+#include "battle_game/core/bullets/killer_ball.h"
 
 #include "battle_game/core/game_core.h"
 #include "battle_game/core/particles/particles.h"
 
 namespace battle_game::bullet {
-CannonBall::CannonBall(GameCore *core,
+KillerBall::KillerBall(GameCore *core,
                        uint32_t id,
                        uint32_t unit_id,
                        uint32_t player_id,
                        glm::vec2 position,
                        float rotation,
-                       float damage_scale,
-                       glm::vec2 velocity)
+                       float damage_scale)
     : Bullet(core, id, unit_id, player_id, position, rotation, damage_scale),
-      velocity_(velocity) {
+    death_count_down_(kTickPerSecond*game_core_->RandomInt(5,20)) {
 }
 
-void CannonBall::Render() {
+void KillerBall::Render() {
   SetTransformation(position_, rotation_, glm::vec2{0.1f});
   SetColor(game_core_->GetPlayerColor(player_id_));
-  SetTexture(BATTLE_GAME_ASSETS_DIR "textures/particle3.png");
+  SetTexture(BATTLE_GAME_ASSETS_DIR "textures/killerball.png");
   DrawModel(0);
 }
 
-void CannonBall::Update() {
-  position_ += velocity_ * kSecondPerTick;
-  bool should_die = false;
-  if (game_core_->IsBlockedByObstacles(position_)) {
-    should_die = true;
+void KillerBall::Update() {
+  if (!death_count_down_) {
+    game_core_->PushEventRemoveBullet(id_);
+    return;
   }
+  death_count_down_--;
 
   auto &units = game_core_->GetUnits();
   for (auto &unit : units) {
@@ -36,17 +35,12 @@ void CannonBall::Update() {
       continue;
     }
     if (unit.second->IsHit(position_)) {
-      game_core_->PushEventDealDamage2(unit.first, id_, unit_id_, damage_scale_ * 10.0f);
-      should_die = true;
+      game_core_->PushEventDealDamage2(unit.first, id_, unit_id_, damage_scale_ * game_core_->RandomFloat() / 2);
     }
-  }
-
-  if (should_die) {
-    game_core_->PushEventRemoveBullet(id_);
   }
 }
 
-CannonBall::~CannonBall() {
+KillerBall::~KillerBall() {
   for (int i = 0; i < 5; i++) {
     game_core_->PushEventGenerateParticle<particle::Smoke>(
         position_, rotation_, game_core_->RandomInCircle() * 2.0f, 0.2f,

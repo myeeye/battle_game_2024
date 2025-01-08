@@ -50,7 +50,7 @@ class App {
 
   std::unique_ptr<vulkan_legacy::framework::RenderNode> render_node_;
 
-  uint32_t my_player_id_{0};
+  uint32_t my_player_id_{0}, goldhopper_id{0};
   float fov_y_{10.0f};
 };
 }  // namespace battle_game

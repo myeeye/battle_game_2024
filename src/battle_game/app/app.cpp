@@ -272,6 +272,9 @@ void App::CaptureInput() {
 void App::SetScene() {
   my_player_id_ = game_core_->AddPlayer();
   auto enemy_player_id = game_core_->AddPlayer();
+  game_core_->GetPlayer(enemy_player_id)->SelectedUnit() = 1;
+  goldhopper_id = game_core_->AddPlayer();
+  game_core_->GetPlayer(goldhopper_id)->SelectedUnit() = 2;
   game_core_->SetRenderPerspective(my_player_id_);
 }
 

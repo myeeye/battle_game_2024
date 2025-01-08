@@ -229,6 +229,21 @@ void GameCore::PushEventDealDamage(uint32_t dst_unit_id,
   });
 }
 
+void GameCore::PushEventDealDamage2(uint32_t dst_unit_id,
+                                   uint32_t src_unit_id,
+                                   uint32_t killer_id,
+                                   float damage) {
+  event_queue_.emplace([=]() {
+    auto unit = GetUnit(dst_unit_id);
+    if (unit) {
+      unit->SetHealth(unit->GetHealth() - damage / unit->GetMaxHealth());
+      if (unit->GetHealth() <= 0.0f) {
+        PushEventKillUnit2(dst_unit_id, src_unit_id, killer_id);
+      }
+    }
+  });
+}
+
 void GameCore::PushEventRemoveObstacle(uint32_t obstacle_id) {
   event_queue_.emplace([=]() {
     if (obstacles_.count(obstacle_id)) {
@@ -265,6 +280,14 @@ void GameCore::PushEventKillUnit(uint32_t dst_unit_id, uint32_t src_unit_id) {
   event_queue_.emplace([=]() { PushEventRemoveUnit(dst_unit_id); });
 }
 
+void GameCore::PushEventKillUnit2(uint32_t dst_unit_id, uint32_t src_unit_id, uint32_t killer_id) {
+  event_queue_.emplace([=]() {
+    auto x=GetUnit(dst_unit_id),y=GetUnit(killer_id);
+    if(x&&y&&x->GetPlayerId()==3&&y->GetPlayerId()!=3) y->SetHealth(y->GetHealth()*2);
+    PushEventRemoveUnit(dst_unit_id);
+  });
+}
+
 float GameCore::RandomFloat() {
   return std::uniform_real_distribution<float>()(random_device_);
 }
@@ -276,8 +299,11 @@ int GameCore::RandomInt(int low_bound, int high_bound) {
 
 void GameCore::SetScene() {
   AddObstacle<obstacle::Block>(glm::vec2{-3.0f, 4.0f});
+  respawn_points_.emplace_back(glm::vec2{-5.0f, -5.0f}, glm::radians(45.0f));
+  respawn_points_.emplace_back(glm::vec2{-7.0f, -7.0f}, glm::radians(45.0f));
   respawn_points_.emplace_back(glm::vec2{0.0f}, 0.0f);
   respawn_points_.emplace_back(glm::vec2{3.0f, 4.0f}, glm::radians(90.0f));
+  respawn_points_.emplace_back(glm::vec2{3.0f, -4.0f}, glm::radians(90.0f));
   boundary_low_ = {-10.0f, -10.0f};
   boundary_high_ = {10.0f, 10.0f};
 }

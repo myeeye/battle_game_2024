@@ -23,6 +23,8 @@ void GameCore::GeneratePrimaryUnitList() {
    * */
   ADD_SELECTABLE_UNIT(unit::Tank);
   ADD_SELECTABLE_UNIT(unit::MyeeTank);
+  // ADD_SELECTABLE_UNIT(unit::GoldHopper);
+  AddPrimaryUnitAllocationFunction<unit::GoldHopper>();
 
   unit.reset();
 }

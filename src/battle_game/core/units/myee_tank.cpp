@@ -138,7 +138,7 @@ void MyeeTank::Fire() {
         GenerateBullet<bullet::CannonBall>(
             position_ + Rotate({0.0f, 1.2f}, turret_rotation_),
             turret_rotation_, GetDamageScale(), velocity);
-        fire_count_down_ = kTickPerSecond;  // Fire interval 1 second.
+        fire_count_down_ = kTickPerSecond / 2;  // Fire interval 0.5 second.
       }
     }
   }
@@ -152,19 +152,20 @@ bool MyeeTank::IsHit(glm::vec2 position) const {
   const glm::vec2 X[6]={{-1.0f, 0.1f},{-0.1f, 1.0f},{0.1f, 1.0f},{1.0f, 0.1f},{0.8f, -1.0f},{-0.8f, -1.0f}};
   auto cross=[](glm::vec2 a,glm::vec2 b){return a.x*b.y-a.y*b.x<0;};
   bool ok = true;
-  for(int j=0;ok&&j<6;j++)ok=cross(position-X[j],X[(j+1)%6]-X[j]);
+  for(int j=0;ok&&j<6;j++)ok=cross(X[(j+1)%6]-X[j],position-X[j]);
   return ok;
 }
+
 float MyeeTank::GetDamageScale() const {
-  return 1.2f;
+  return 0.8f;
 }
 
 float MyeeTank::GetSpeedScale() const {
-  return 1.2f;
+  return 1.5f;
 }
 
 float MyeeTank::BasicMaxHealth() const {
-  return 40.0f;
+  return 50.0f;
 }
 
 const char *MyeeTank::UnitName() const {
